@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Note = require("../models/Note");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 //@desc Get all users
 //@route GET /users
@@ -62,6 +63,10 @@ const updateUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "User Id is invalid" });
+  }
+
   const user = await User.findById(id).exec();
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -97,6 +102,11 @@ const deleteUser = asyncHandler(async (req, res) => {
   if (!id) {
     return res.status(400).json({ message: "User ID required" });
   }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "User Id is invalid" });
+  }
+
   const notes = await Note.find({ user: id }).lean().exec();
   if (notes?.length) {
     return res.status(400).json({ message: "User has assigned notes" });
